@@ -15,7 +15,7 @@ export interface DataTreeProps {
 
 export function DataTree({ searchTerm }: DataTreeProps) {
   const [depth, setDepth] = useState(1)
-  const [zoom, setZoom] = useState(1)
+  const [zoom, setZoom] = useState(0.8)
   const [filteredData, setFilteredData] = useState<TreeNode | null | any>(
     initialData
   )
@@ -79,19 +79,28 @@ export function DataTree({ searchTerm }: DataTreeProps) {
               branchNodeClassName="node__branch"
               leafNodeClassName="node__leaf"
               initialDepth={depth}
-              nodeSize={{ x: 360, y: 50 }}
+              nodeSize={{ x: 360, y: 30 }}
               draggable={true}
               zoom={zoom}
               zoomable={true}
               transitionDuration={300}
               centeringTransitionDuration={500}
-              translate={{ x: 0, y: filteredData ? 300 : 450 }}
-              dimensions={{ width: 700, height: 300 }}
+              translate={{ x: 100, y: 400 }}
+              dimensions={{ width: 700, height: 750 }}
               collapsible={true}
               shouldCollapseNeighborNodes={false}
+              pathClassFunc={() => 'custom-path'}
             />
           )}
         </Col>
+        <style>
+          {`
+          .custom-path {
+            stroke: #999; /* Customize the path color */
+            stroke-width: 1px;
+          }
+        `}
+        </style>
       </Row>
     </div>
   )

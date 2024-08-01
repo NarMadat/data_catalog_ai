@@ -59,92 +59,96 @@ export function Chat() {
   }
 
   return (
-    <div className="group w-full overflow-auto pl-0 peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px]">
+    <div className="group w-full overflow-auto pl-0">
       <div className=" inset-x-0 mt-4 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
-        <div className="mx-auto sm:max-w-2xl sm:px-4">
-          <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4">
-            <PromptForm
-              input={input}
-              setInput={setInput}
-              setVariants={setVariants}
-              setShowResults={setShowResults}
-              setShowLoading={setShowLoading}
-              setValue={setValue}
-            />
-            <FooterText className="hidden sm:block" />
-          </div>
-        </div>
-
         <div className={'container '}>
-          <Row justify={'center'} className={'py-4'}>
-            <Col>
+          <Row>
+            <Col xs={5}>
+              <div className="mx-auto sm:max-w-2xl sm:px-4">
+                <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4">
+                  <PromptForm
+                    input={input}
+                    setInput={setInput}
+                    setVariants={setVariants}
+                    setShowResults={setShowResults}
+                    setShowLoading={setShowLoading}
+                    setValue={setValue}
+                  />
+                  <FooterText className="hidden sm:block" />
+                </div>
+              </div>
+            </Col>
+            <Col xs={19}>
               {showLoading && (
-                <Row gutter={[12, 12]}>
-                  <Col xs={24} className={'flex justify-center'}>
-                    <AnimatedCircularProgressBar
-                      max={100}
-                      value={value}
-                      min={0}
-                      gaugePrimaryColor={'#036300'}
-                      gaugeSecondaryColor={'#9dac94'}
-                    />
-                  </Col>
-                  <Col xs={24} className={'text-center'}>
-                    <p>{progressTexts[Math.floor(value / 8)]}</p>
+                <Row justify={'center'} className={'py-4'}>
+                  <Col>
+                    <Row gutter={[12, 12]}>
+                      <Col xs={24} className={'flex justify-center'}>
+                        <AnimatedCircularProgressBar
+                          max={100}
+                          value={value}
+                          min={0}
+                          gaugePrimaryColor={'#036300'}
+                          gaugeSecondaryColor={'#9dac94'}
+                        />
+                      </Col>
+                      <Col xs={24} className={'text-center'}>
+                        <p>{progressTexts[Math.floor(value / 8)]}</p>
+                      </Col>
+                    </Row>
                   </Col>
                 </Row>
               )}
-            </Col>
-            <Col>
-              {showLoading && (
-                <div className={'flex justify-center pt-8'}></div>
-              )}
-            </Col>
-            <Col xs={24}>
+
               {variants && showResults && !showLoading && (
-                <ResultsContainer
-                  json={variants}
-                  showResults={true}
-                  onButtonClick={handleButtonClick}
-                  full={false}
-                />
+                <Row>
+                  <Col xs={24}>
+                    <ResultsContainer
+                      json={variants}
+                      showResults={true}
+                      onButtonClick={handleButtonClick}
+                      full={false}
+                    />
+                  </Col>
+                </Row>
               )}
-            </Col>
-          </Row>
-          <Row gutter={[8, 8]}>
-            <Col xs={24}>
-              <Segmented
-                value={selectedView}
-                onChange={setSelectedView}
-                options={[
-                  {
-                    label: 'Ծառի տեսքով',
-                    value: 'Ծառի տեսքով',
-                    disabled: false
-                  },
-                  {
-                    label: 'Տեքստային',
-                    value: 'Տեքստային',
-                    disabled: textDisabled
-                  }
-                ]}
-                size={'large'}
-                block
-              />
-            </Col>
-            <Col xs={24}>
-              {selectedView === 'Ծառի տեսքով' ? (
-                <DataTree searchTerm={searchTerm} />
-              ) : selectedView === 'Տեքստային' ? (
-                <ResultsContainer
-                  json={variants}
-                  showResults={true}
-                  onButtonClick={handleButtonClick}
-                  full={true}
-                />
-              ) : (
-                <RingLoader size={60} color={'green'} />
-              )}
+
+              <Row gutter={[8, 8]}>
+                <Col xs={24}>
+                  <Segmented
+                    value={selectedView}
+                    onChange={setSelectedView}
+                    options={[
+                      {
+                        label: 'Ծառի տեսքով',
+                        value: 'Ծառի տեսքով',
+                        disabled: false
+                      },
+                      {
+                        label: 'Տեքստային',
+                        value: 'Տեքստային',
+                        disabled: textDisabled
+                      }
+                    ]}
+                    size={'large'}
+                    block
+                  />
+                </Col>
+                <Col xs={24}>
+                  {selectedView === 'Ծառի տեսքով' ? (
+                    <DataTree searchTerm={searchTerm} />
+                  ) : selectedView === 'Տեքստային' ? (
+                    <ResultsContainer
+                      json={variants}
+                      showResults={true}
+                      onButtonClick={handleButtonClick}
+                      full={true}
+                    />
+                  ) : (
+                    <RingLoader size={60} color={'green'} />
+                  )}
+                </Col>
+              </Row>
             </Col>
           </Row>
         </div>
