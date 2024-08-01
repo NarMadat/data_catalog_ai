@@ -4,11 +4,7 @@ import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
 import { Button } from '@/components/ui/button'
 import { IconArrowElbow, IconPlus } from '@/components/ui/icons'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
+
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 
 export function PromptForm({
@@ -26,7 +22,7 @@ export function PromptForm({
   setShowLoading: (value: boolean) => void
   setValue: (value: number) => void
 }) {
-  const { formRef, onKeyDown } = useEnterSubmit()
+  // const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
 
   const handleSendMessage = async (value: string) => {
@@ -60,7 +56,6 @@ export function PromptForm({
 
   return (
     <form
-      ref={formRef}
       onSubmit={async (e: any) => {
         e.preventDefault()
 
@@ -75,7 +70,6 @@ export function PromptForm({
         <Textarea
           ref={inputRef}
           tabIndex={0}
-          onKeyDown={onKeyDown}
           placeholder="Փնտրել տեղեկատվություն․․"
           className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
           autoFocus
@@ -88,15 +82,10 @@ export function PromptForm({
           onChange={e => setInput(e.target.value)}
         />
         <div className="absolute right-0 top-[13px] sm:right-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button type="submit" size="icon" disabled={input === ''}>
-                <IconArrowElbow />
-                <span className="sr-only">Send message</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Send message</TooltipContent>
-          </Tooltip>
+          <Button type="submit" size="icon" disabled={input === ''}>
+            <IconArrowElbow />
+            <span className="sr-only">Send message</span>
+          </Button>
         </div>
       </div>
     </form>

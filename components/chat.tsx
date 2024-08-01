@@ -1,86 +1,30 @@
 'use client'
-
-import { cn } from '@/lib/utils'
-import { ChatList } from '@/components/chat-list'
-import { ChatPanel } from '@/components/chat-panel'
-import { EmptyScreen } from '@/components/empty-screen'
-import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { useEffect, useState } from 'react'
-import { useUIState, useAIState } from 'ai/rsc'
-import { Message, Session } from '@/lib/types'
-import { usePathname, useRouter } from 'next/navigation'
-import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
-import { toast } from 'sonner'
 import { DataTree } from '@/components/tree/tree'
 import * as React from 'react'
 import { PromptForm } from '@/components/prompt-form'
 import { FooterText } from '@/components/footer'
 import AnimatedCircularProgressBar from '@/components/ProgressMagic'
 import { RingLoader } from 'react-spinners'
+import ResultsContainer from '@/components/assistant/ResultsContainer'
+import { Col, Row, Segmented } from 'antd'
 
-export interface ChatProps extends React.ComponentProps<'div'> {
-  initialMessages?: Message[]
-  id?: string
-  session?: Session
-  missingKeys: string[]
-}
+const progressTexts = [
+  'Որոնման մեկնարկ...',
+  'Տվյալների հավաքագրում...',
+  'Տվյալների մշակում...',
+  'Տվյալների համեմատություն...',
+  'Լավագույն համընկնումների ընտրություն...',
+  'Տվյալների վերլուծություն...',
+  'Հաշվետվության պատրաստում...',
+  'Վերջնական արդյունքների ապահովում...',
+  'Արդյունքների ներկայացում...',
+  'Օգտագործողի տեղեկացում...',
+  'Արդյունքների ստուգում...',
+  'Որոնումը ավարտված է:'
+]
 
-interface ResultButtonProps {
-  dataProviderUnit: string
-  dataType: string
-  dataName: string
-  onClick: (dataName: string) => void
-}
-
-const ResultButton: React.FC<ResultButtonProps> = ({
-  dataProviderUnit,
-  dataType,
-  dataName,
-  onClick
-}) => {
-  return (
-    <button
-      onClick={() => onClick(dataName)}
-      className={'bg-amber-300 text-black p-2 rounded mb-2 text-xs mr-4'}
-    >
-      {dataType} {'->'} {dataName}
-    </button>
-  )
-}
-
-interface ResultsContainerProps {
-  json: Array<{
-    data_provider_unit: string
-    data_type: string
-    data_name: string
-  }>
-  showResults: boolean
-  onButtonClick: (dataName: string) => void
-}
-
-const ResultsContainer: React.FC<ResultsContainerProps> = ({
-  json,
-  showResults,
-  onButtonClick
-}) => {
-  return (
-    <div id="resultsContainer" className={'p-4'}>
-      <h2 className={'mt-12'}>Ընտրել տարբերակներից:</h2>
-
-      {json.map(item => (
-        <ResultButton
-          key={item.data_name}
-          dataProviderUnit={item.data_provider_unit}
-          dataType={item.data_type}
-          dataName={item.data_name}
-          onClick={onButtonClick}
-        />
-      ))}
-    </div>
-  )
-}
-
-export function Chat({ id, className, session, missingKeys }: ChatProps) {
+export function Chat() {
   const [input, setInput] = useState('')
   const [showResults, setShowResults] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
@@ -89,7 +33,10 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
 
   const [globalSearchTerm, setGlobalSearchTerm] = useState<string>('')
   const [value, setValue] = useState(0)
-
+  const [selectedView, setSelectedView] = useState<string | number>(
+    'Ծառի տեսքով'
+  )
+  const [textDisabled, setTextDisabled] = useState<boolean>(true)
   useEffect(() => {
     const handleIncrement = (prev: number) => {
       if (prev === 96) {
@@ -103,14 +50,12 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
   }, [])
   const handleButtonClick = (dataName: string) => {
     setGlobalSearchTerm(dataName)
-    console.log('Button clicked:', dataName)
+    setTextDisabled(false)
     searchAiTerm(dataName)
   }
 
   const searchAiTerm = (term: string) => {
-    // Your custom function here
     setSearchTerm(term)
-    console.log('Searching for:', term)
   }
 
   return (
@@ -130,24 +75,80 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
           </div>
         </div>
 
-        <div className={'container mt-4'}>
-          {variants && showResults && !showLoading && (
-            <ResultsContainer
-              json={variants}
-              showResults={true}
-              onButtonClick={handleButtonClick}
-            />
-          )}
-
-          {showLoading && (
-            <div className={'flex justify-center pt-8'}>
-              <RingLoader size={60} color={'green'} />
-            </div>
-          )}
+        <div className={'container '}>
+          <Row justify={'center'} className={'py-4'}>
+            <Col>
+              {showLoading && (
+                <Row gutter={[12, 12]}>
+                  <Col xs={24} className={'flex justify-center'}>
+                    <AnimatedCircularProgressBar
+                      max={100}
+                      value={value}
+                      min={0}
+                      gaugePrimaryColor={'#036300'}
+                      gaugeSecondaryColor={'#9dac94'}
+                    />
+                  </Col>
+                  <Col xs={24} className={'text-center'}>
+                    <p>{progressTexts[Math.floor(value / 8)]}</p>
+                  </Col>
+                </Row>
+              )}
+            </Col>
+            <Col>
+              {showLoading && (
+                <div className={'flex justify-center pt-8'}></div>
+              )}
+            </Col>
+            <Col xs={24}>
+              {variants && showResults && !showLoading && (
+                <ResultsContainer
+                  json={variants}
+                  showResults={true}
+                  onButtonClick={handleButtonClick}
+                  full={false}
+                />
+              )}
+            </Col>
+          </Row>
+          <Row gutter={[8, 8]}>
+            <Col xs={24}>
+              <Segmented
+                value={selectedView}
+                onChange={setSelectedView}
+                options={[
+                  {
+                    label: 'Ծառի տեսքով',
+                    value: 'Ծառի տեսքով',
+                    disabled: false
+                  },
+                  {
+                    label: 'Տեքստային',
+                    value: 'Տեքստային',
+                    disabled: textDisabled
+                  }
+                ]}
+                size={'large'}
+                block
+              />
+            </Col>
+            <Col xs={24}>
+              {selectedView === 'Ծառի տեսքով' ? (
+                <DataTree searchTerm={searchTerm} />
+              ) : selectedView === 'Տեքստային' ? (
+                <ResultsContainer
+                  json={variants}
+                  showResults={true}
+                  onButtonClick={handleButtonClick}
+                  full={true}
+                />
+              ) : (
+                <RingLoader size={60} color={'green'} />
+              )}
+            </Col>
+          </Row>
         </div>
       </div>
-
-      <DataTree searchTerm={searchTerm} />
     </div>
   )
 }
