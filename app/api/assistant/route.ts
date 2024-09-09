@@ -1,4 +1,3 @@
-import { AssistantResponse } from 'ai'
 import OpenAI from 'openai'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -7,19 +6,14 @@ const openai = new OpenAI({
 })
 
 export async function POST(req: NextRequest) {
-  // Parse the request body
-
   try {
-    console.time('aiExecutionTime')
     const input: {
       threadId: string | null
       message: string
     } = await req.json()
 
-    // Create a thread if needed
     const threadId = input.threadId ?? (await openai.beta.threads.create({})).id
 
-    // Add a message to the thread
     const createdMessage = await openai.beta.threads.messages.create(threadId, {
       role: 'user',
       content: input.message
@@ -27,10 +21,10 @@ export async function POST(req: NextRequest) {
 
     const instructions =
       'You are a top level search engine for armenian keywords. Your purpose is to assist user to find needed data in government unstructured database.' +
-      'You must find 10  best  meaningfully matches for input keywords.' +
-      'You need to search for words from the database by context, also identifying and correcting any typos in words,' +
-      'and returning the correct versions. You must provide 5-7 best matches  that are contextually closest to the searchable word.' +
-      'If nothing relevant was found, answer with emoty json.' +
+      'You must find contexts, that best match for input keywords. ' +
+      'Also identify and correct any typos in inputs․' +
+      ' You must provide 8-12 best matches  that are contextually closest to the searchable word.' +
+      'If nothing relevant was found, answer with empty json.' +
       'Answer with only exact JSON blob, with keys name, column . Example:' +
       '[ {“id”:45,“data_provider”:”ՀՀ Էկոնոմիկայի նախարարություն“,“data_provider_unit”:”Մտավոր սեփականության գրասենյակ“,“system”:”Մտավոր սեփականության գրասենյակ“, “data_type”:”Գյուտ“,“data_name”=”ռեֆերատի բովանդակություն“} ,' +
       '{“id”:8591,“data_provider”:”Պետական եկամուտների կոմիտե“,“data_provider_unit”:”Տեղեկատվական համակարգերի վարչություն“,“system”:”Դիմում` սոցիալական վճար կատարելը վերսկսելու“, “data_type”:”Նույնականացում“,“data_name”=”Հարկ վճարողի հաշվառման համար“}, ... ]' +
