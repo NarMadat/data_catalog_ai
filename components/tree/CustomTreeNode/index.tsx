@@ -14,7 +14,6 @@ export const CustomTreeNode: React.FC<CustomNodeElementProps> = ({
     const lines: string[] = []
     let currentLine = words[0]
 
-    // Create a temporary SVG text element to measure text width
     const tempSvg = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'svg'

@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { DataTree } from '@/components/tree/tree'
 import * as React from 'react'
 import { PromptForm } from '@/components/prompt-form'
-import { FooterText } from '@/components/footer'
 import AnimatedCircularProgressBar from '@/components/ProgressMagic'
 import { RingLoader } from 'react-spinners'
 import ResultsContainer from '@/components/assistant/ResultsContainer'
@@ -60,7 +59,7 @@ export function Chat() {
 
   return (
     <div className="group w-full overflow-auto pl-0">
-      <div className=" inset-x-0 mt-4 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
+      <div className=" inset-x-0 mt-0 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
         <div className={'container '}>
           <Row>
             <Col xs={5}>
@@ -74,7 +73,6 @@ export function Chat() {
                     setShowLoading={setShowLoading}
                     setValue={setValue}
                   />
-                  <FooterText className="hidden sm:block" />
                 </div>
               </div>
             </Col>
