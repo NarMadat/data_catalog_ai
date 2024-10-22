@@ -2,24 +2,23 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import initialData from '@/data/data.json';
 
-interface CustomHierarchyNode extends d3.HierarchyNode<any> {
+interface CustomHierarchyNode<T = any> extends d3.HierarchyNode<T> {
   x0?: number;
   y0?: number;
-  x?: number;
-  y?: number;
-  id?: string | number;
-  _children?: CustomHierarchyNode[];
-  children?: CustomHierarchyNode[];
-  data: any;
+  x: number;
+  y: number;
+  numericId?: number;
+  _children?: this[];
+  children?: this[];
+  data: T;
 }
 
 export function DataTree() {
   const treeContainerRef = useRef<HTMLDivElement>(null);
-  const gMainRef = useRef<SVGGElement>(null);
   const [selectedMetadata, setSelectedMetadata] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  const margin = { top: 20, right: 100, bottom: 20, left: 40 };
+  const margin = { top: 20, right: 100, bottom: 20, left: 500 };
   const width = 1800;
   const height =
     typeof window !== 'undefined'
@@ -30,6 +29,7 @@ export function DataTree() {
     setIsMounted(true);
   }, []);
 
+  
   useEffect(() => {
     if (!isMounted) return;
     if (!treeContainerRef.current) return;
@@ -62,7 +62,6 @@ export function DataTree() {
       .attr('fill', '#f3f3f3');
 
     const gMain = svg.append('g').attr('class', 'main-group');
-    gMainRef.current = gMain.node() as SVGGElement;
 
     const gLink = gMain
       .append('g')
@@ -81,7 +80,7 @@ export function DataTree() {
     root.x0 = dx;
     root.y0 = 0;
 
-    root.id = 0;
+    root.numericId = 0;
     let i = 1;
 
     if (root.children) {
@@ -97,7 +96,7 @@ export function DataTree() {
     function collapse(d: CustomHierarchyNode) {
       if (d.children) {
         d._children = d.children;
-        d.children = null;
+        d.children = undefined;
         d._children.forEach(collapse);
       }
     }
@@ -105,7 +104,7 @@ export function DataTree() {
     function expand(d: CustomHierarchyNode) {
       if (d._children) {
         d.children = d._children;
-        d._children = null;
+        d._children = undefined;
         if (d.children) {
           d.children.forEach(child => collapse(child));
         }
@@ -140,7 +139,7 @@ export function DataTree() {
 
       let current = node;
       while (current.parent) {
-        const linkId = `link-${current.id}-${current.parent.id}`;
+        const linkId = `link-${current.numericId}-${current.parent.numericId}`;
         const link = gLink.select(`#${linkId}`);
 
         if (!link.empty()) {
@@ -160,7 +159,6 @@ export function DataTree() {
       const links = root.links();
 
       treeLayout(root);
-
       let left = root;
       let right = root;
       root.eachBefore((node: CustomHierarchyNode) => {
@@ -177,17 +175,17 @@ export function DataTree() {
           left.x - margin.top,
           width,
           adjustedHeight,
-        ]);
+        ].join(' '));
 
       const nodeSelection = gNode
         .selectAll<SVGGElement, CustomHierarchyNode>('g.node')
-        .data(nodes, (d: any) => d.id || (d.id = i++));
+        .data(nodes, (d: CustomHierarchyNode) => d.numericId || (d.numericId = i++));
 
       const nodeEnter = nodeSelection
         .enter()
         .append('g')
         .attr('class', 'node')
-        .attr('id', (d) => `node-${d.id}`)
+        .attr('id', (d) => `node-${d.numericId}`)
         .attr('transform', () => `translate(${source.y0},${source.x0})`)
         .attr('fill-opacity', 0)
         .attr('stroke-opacity', 0);
@@ -248,22 +246,23 @@ export function DataTree() {
         if (d.children || d._children) {
           if (d.children) {
             d._children = d.children;
-            d.children = null;
+            d.children = undefined;
           } else {
             d.children = d._children;
-            d._children = null;
-            d.children.forEach(child => collapse(child));
+            d._children = undefined;
+            if (d.children) {
+              d.children.forEach(child => collapse(child));
+            }
           }
-
           update(d);
         }
 
         if (d.data.metadata) {
           setSelectedMetadata((prevMetadata: any) => {
-            if (prevMetadata && prevMetadata.id === d.id) {
+            if (prevMetadata && prevMetadata.numericId === d.numericId) {
               return null;
             } else {
-              return { ...d.data, id: d.id };
+              return { ...d.data, numericId: d.numericId };
             }
           });
         } else {
@@ -284,13 +283,13 @@ export function DataTree() {
 
       const linkSelection = gLink
         .selectAll<SVGPathElement, d3.HierarchyLink<CustomHierarchyNode>>('path.link')
-        .data(links, (d: any) => d.target.id);
+        .data(links, (d: any) => d.target.numericId);
 
       const linkEnter = linkSelection
         .enter()
         .append('path')
         .attr('class', 'link')
-        .attr('id', (d) => `link-${d.target.id}-${d.source.id}`)
+        .attr('id', (d) => `link-${d.target.numericId}-${d.source.numericId}`)
         .attr('d', () => {
           const o = { x: source.x0!, y: source.y0! };
           return diagonal({ source: o, target: o } as any);
@@ -310,7 +309,7 @@ export function DataTree() {
         .duration(duration)
         .remove()
         .attr('d', () => {
-          const o = { x: source.x!, y: source.y! };
+          const o = { x: source.x, y: source.y };
           return diagonal({ source: o, target: o } as any);
         });
 
@@ -320,12 +319,11 @@ export function DataTree() {
       });
     }
 
-    function showMetadata(data: any, nodeId: string | number) {
-      setSelectedMetadata({ ...data, id: nodeId });
+    function showMetadata(data: any, nodeNumericId: number) {
+      setSelectedMetadata({ ...data, numericId: nodeNumericId });
     }
   }, [isMounted, height, margin.left, margin.right, margin.top, margin.bottom, width]);
-
-  return (
+    return (
     <div
       className="tree-container"
       ref={treeContainerRef}
@@ -333,12 +331,15 @@ export function DataTree() {
         width: '78.5vw',
         height: '95vh',
         position: 'relative',
+        top: '0',
+        left: '0',
         backgroundColor: '#f3f3f3',
         margin: '0',
         paddingRight: '50px',
         paddingLeft: '20px',
         boxSizing: 'border-box',
         overflow: 'hidden',
+        zIndex: 0,
       }}
     >
       {selectedMetadata && (
