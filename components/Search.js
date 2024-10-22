@@ -57,6 +57,12 @@ function Search({ onNotFound }) {
     setSelectedMeta(null); 
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   const metaKeysMap = {
     columnE: 'Համակարգի անուն',
     columnF: 'Իրավական հիմքեր',
@@ -74,6 +80,7 @@ function Search({ onNotFound }) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}  // Добавляем обработчик события
           placeholder="Փնտրել տեղեկություն․․․"
           className="min-h-[20px] w-full resize-none bg-transparent px-2 py-1 text-xs border border-gray-300 rounded-lg focus:outline-none"
         />
@@ -183,6 +190,7 @@ function Search({ onNotFound }) {
 }
 
 export default Search;
+
 
 
 
