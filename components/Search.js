@@ -100,7 +100,8 @@ function Search({ onNotFound }) {
       <div className="mt-4">
         {notFound && (
           <div className="not-found-message bg-red-500 text-red p-2 rounded-lg text-center mb-4">
-            <p>No results found. Try using AI search.</p>
+            <p>Ցավոք, ոչ մի արդյունք չգտնվեց։
+            Փորձեք հարցումն իրականացնել արհեստական բանականության որոնման համակարգով</p>
           </div>
         )}
 

@@ -80,5 +80,14 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.5.2"
   },
-  "packageManager": "pnpm@8.6.3"
+  "packageManager": "pnpm@8.6.3",
+  "name": "data_catalog_ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "next.config.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "author": "",
+  "license": "ISC"
 }
