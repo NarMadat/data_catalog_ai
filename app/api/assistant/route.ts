@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (error: any) {
+    console.log(error)
     const { status, data } = error
 
     return NextResponse.json({ ...data }, { status: status })
